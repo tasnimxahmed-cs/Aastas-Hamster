@@ -6,8 +6,6 @@ const client = new Client({
     partials: ['MESSAGE', 'REACTION']
 });
 
-const command = require('./command.js');
-
 //ready
 client.on('ready', () => {
     console.log(`${client.user.tag} has logged in.`);
