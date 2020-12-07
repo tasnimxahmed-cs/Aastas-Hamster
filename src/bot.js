@@ -17,6 +17,7 @@ client.on('ready', () => {
             name: 'Takeda Sensei'
         }
     });
+    client.user.setUsername("Aasta's Hamster");
 });
 
 //message sent
@@ -29,18 +30,18 @@ client.on('message', (message) => {
         .split(/\s+/);
 
         //pingpong
-        if(CMD_NAME === 'ping')
+        if(CMD_NAME.toLowerCase() === 'ping')
         {
             message.channel.send('pong!');
             return;
         }
         //hit me
-        if(CMD_NAME === 'hit' && args.length == 5 && args[0] === 'me' && args[1] === 'for' && args[2] === 'it' && args[3] === 'one' && args[4] === 'time')
+        if(CMD_NAME.toLowerCase() === 'hit' && args.length == 5 && args[0].toLowerCase() === 'me' && args[1].toLowerCase() === 'for' && args[2].toLowerCase() === 'it' && args[3].toLowerCase() === 'one' && args[4].toLowerCase() === 'time')
         {
             message.channel.send('OW!');
             return;
         }
-        if(CMD_NAME === 'hit' && args.length == 5 && args[0] === 'aasta' && args[1] === 'over' && args[2] === 'and' && args[3] === 'over' && args[4] === 'again')
+        if(CMD_NAME.toLowerCase() === 'hit' && args.length == 5 && args[0].toLowerCase() === 'aasta' && args[1].toLowerCase() === 'over' && args[2].toLowerCase() === 'and' && args[3].toLowerCase() === 'over' && args[4].toLowerCase() === 'again')
         {
             message.channel.send('oOF!');
             message.channel.send('woMP!');
@@ -50,8 +51,94 @@ client.on('message', (message) => {
             return;
         }
 
+        //help
+        if(CMD_NAME.toLowerCase() === 'help' || CMD_NAME.toLowerCase() === 'pls')
+        {
+            if(message.member.hasPermission('ADMINISTRATOR'))
+            {
+                const embed = new Discord.MessageEmbed()
+                    .setTitle("Aasta's Hamster 🐹")
+                    .setThumbnail(client.user.avatarURL())
+                    .setColor('#ec8d3a')
+                    .setURL('https://github.com/tasnimxahmed-cs/Aastas-Hamster')
+                    .setFooter('© メアリーさん')
+                    .addFields(
+                        {
+                            name: 'Help Menu',
+                            value: 'React with an emoji to view corresponding commands!',
+                            inline: true,
+                        },
+                        {
+                            name: '`🌸` にほんご',
+                            value: 'Learn Japanese with Hammy! 🤓',
+                            inline: false,
+                        },
+                        {
+                            name: '`🤡` For Fun',
+                            value: 'Working hard, or hardly working? 🤔',
+                            inline: false,
+                        },
+                        {
+                            name: '`🌱` Miscellaneous',
+                            value: 'Who knows? 🤷‍♂️',
+                            inline: true,
+                        },
+                        {
+                            name: '`🛠` Admin Tools',
+                            value: 'imagine not being admin lmaoo',
+                            inline: false,
+                        },
+                    );
+                message.channel.send(embed).then((message) => {
+                    message.react('🌸');
+                    message.react('🤡');
+                    message.react('🌱');
+                    message.react('🛠');
+                });
+                return;
+            }
+            else
+            {
+                const embed = new Discord.MessageEmbed()
+                    .setTitle("Aasta's Hamster 🐹")
+                    .setThumbnail(client.user.avatarURL())
+                    .setColor('#ec8d3a')
+                    .setURL('https://github.com/tasnimxahmed-cs/Aastas-Hamster')
+                    .setFooter('© メアリーさん')
+                    .addFields(
+                        {
+                            name: 'Help Menu',
+                            value: 'React with the corresponding emoji to view commands!',
+                            inline: true,
+                        },
+                        {
+                            name: '`🌸` にほんご',
+                            value: 'Learn Japanese with Hammy! 🤓',
+                            inline: false,
+                        },
+                        {
+                            name: '`🤡` For Fun',
+                            value: 'Working hard, or hardly working? 🤔',
+                            inline: false,
+                        },
+                        {
+                            name: '`🌱` Miscellaneous',
+                            value: 'Who knows? 🤷‍♂️',
+                            inline: true,
+                        },
+                    );
+                message.channel.send(embed).then((message) => {
+                    message.react('🌸');
+                    message.react('🤡');
+                    message.react('🌱');
+                });
+                return;
+            }
+            
+        }
+
         //clear
-        if(CMD_NAME === 'clear')
+        if(CMD_NAME.toLowerCase() === 'clear')
         {
             if(message.member.hasPermission('ADMINISTRATOR'))
             {
@@ -63,7 +150,7 @@ client.on('message', (message) => {
         }
 
         //status
-        if(CMD_NAME === 'status')
+        if(CMD_NAME.toLowerCase() === 'status')
         {
             if(message.member.hasPermission('ADMINISTRATOR'))
             {
@@ -84,7 +171,7 @@ client.on('message', (message) => {
         }
 
         //info
-        if(CMD_NAME === 'info')
+        if(CMD_NAME.toLowerCase() === 'info')
         {
             const { guild } = message;
             const { name, region, memberCount, owner } = guild;
@@ -113,7 +200,7 @@ client.on('message', (message) => {
         }
 
         //dev
-        if(CMD_NAME === 'dev')
+        if(CMD_NAME.toLowerCase() === 'dev')
         {
             const embed = new Discord.MessageEmbed()
                 .setTitle("Aasta's Hamster 🐹")
@@ -142,20 +229,8 @@ client.on('message', (message) => {
             return;
         }
 
-        //clearChannel
-        if (CMD_NAME === 'cc' || CMD_NAME === 'clearChannel')
-        {
-            if(message.member.hasPermission('ADMINISTRATOR'))
-            {
-                message.channel.messages.fetch().then((results) => {
-                    message.channel.bulkDelete(results);
-                });
-            }
-            return;
-        }
-
         //poll
-        if(CMD_NAME === 'poll')
+        if(CMD_NAME.toLowerCase() === 'poll')
         {
             if(message.member.hasPermission('ADMINISTRATOR'))
             {
@@ -170,7 +245,7 @@ client.on('message', (message) => {
         }
 
         //roleMenu
-        if(CMD_NAME === 'roleMenu')
+        if(CMD_NAME.toLowerCase() === 'rolemenu')
         {
             var intro = "Hello! Please react to the following messages to give yourself your roles!";
             var classLev = "**Class Level**\n\n📙: `JPN 101`\n\n📕: `JPN 102`\n\n📗: `JPN 201`\n\n📘: `JPN 202`";
@@ -215,7 +290,7 @@ client.on('message', (message) => {
 //new member
 client.on('guildMemberAdd', (member) => {
     const channel = member.guild.channels.cache.get('778473299016417330');
-    const message = `いらっしゃいませ！<@${member.id}> is now a part of the **${member.guild.name}** family! We're so excited you're here!\n\nPlease change your nickname to your real name and head on over to ${member.guild.channels.cache.get('785002534640418876').toString()} to have our bot add some roles to your account! We want to get to know a bit more about you, and it's important that you have the right teacher assigned: each teacher will have access to a private text channel meant just for you and your classmates who have the same sensei!\n\nNext, go introduce yourself in ${member.guild.channels.cache.get('785322972562980895').toString()} and then say hi in ${member.guild.channels.cache.get('749100160868548690').toString()}, ask for help in ${member.guild.channels.cache.get('749111308951224360').toString()}, or put your skills to the test in ${member.guild.channels.cache.get('778477527886594048').toString()}. Feel free to chat anytime! Have fun with the server, use the bots, join the voice channels and study/chill with us :D If you have any questions or suggestions, feel free to ping ${member.guild.roles.cache.get('778482064210919434').toString()} in ${member.guild.channels.cache.get('779145280863993896').toString()}! We hope you enjoy your stay!!`
+    const message = `いらっしゃいませ！<@${member.id}> is now a part of the **${member.guild.name}** family! We're so excited you're here!\n\nPlease change your nickname to your real name and head on over to ${member.guild.channels.cache.get('785002534640418876').toString()} to have our bot add some roles to your account! We want to get to know a bit more about you, and it's important that you have the right teacher assigned: each teacher will have access to a private text channel meant just for you and your classmates who have the same sensei!\n\nNext, go introduce yourself in ${member.guild.channels.cache.get('785335528949415937').toString()} and then say hi in ${member.guild.channels.cache.get('749100160868548690').toString()}, ask for help in ${member.guild.channels.cache.get('749111308951224360').toString()}, or put your skills to the test in ${member.guild.channels.cache.get('778477527886594048').toString()}. Feel free to chat anytime! Have fun with the server, use the bots, join the voice channels and study/chill with us :D If you have any questions or suggestions, feel free to ping ${member.guild.roles.cache.get('778482064210919434').toString()} in ${member.guild.channels.cache.get('779145280863993896').toString()}! We hope you enjoy your stay!!`
 
     channel.send(message);
 });
@@ -223,6 +298,190 @@ client.on('guildMemberAdd', (member) => {
 //reaction added
 client.on('messageReactionAdd', (reaction, user) => {
     const { name } = reaction.emoji;
+
+    //help
+    if(reaction.message.embeds && (!reaction.me))
+    {
+        const admins = ['223631161891618816'];
+        const ppl = reaction.message.guild.members.cache.array();
+        for(i=0;i<ppl.length;i++)
+        {
+            if(ppl[i].roles.cache)
+            {
+                var arrRoles = ppl[i].roles.cache.array();
+                for(j=0;j<arrRoles.length;j++)
+                {
+                    if(arrRoles[j] == '778482064210919434')
+                    {
+                        admins.push(ppl[i].id);
+                    }
+                }
+            }
+        }
+        var arrEmb = reaction.message.embeds;
+        var field1 = arrEmb[0].fields[0];
+        if(field1.name === 'Help Menu')
+        {
+            if(arrEmb[0].fields.length == 5)
+            {
+                switch (name) {
+                    case '🌸':
+                        var embed = new Discord.MessageEmbed()
+                            .setTitle("🌸 にほんご")
+                            .setDescription('Help Menu')
+                            .setColor('#ec8d3a')
+                            .addFields(
+                                {
+                                    name: 'Coming soon!',
+                                    value: 'Coming Soon!',
+                                    inline: true,
+                                },
+                            );
+                            reaction.message.channel.send(embed);
+                        break;
+                    case '🤡':
+                        embed = new Discord.MessageEmbed()
+                            .setTitle("🤡 For Fun")
+                            .setDescription('Help Menu')
+                            .setColor('#ec8d3a')
+                            .addFields(
+                                {
+                                    name: process.env.PREFIX+'ping',
+                                    value: 'Pong!',
+                                    inline: true,
+                                },
+                                {
+                                    name: process.env.PREFIX+'hit me for it one time',
+                                    value: 'Hit Hammy',
+                                    inline: false,
+                                },
+                            );
+                            reaction.message.channel.send(embed);
+                        break;
+                    case '🌱':
+                        embed = new Discord.MessageEmbed()
+                            .setTitle("🌱 Miscellaneous")
+                            .setDescription('Help Menu')
+                            .setColor('#ec8d3a')
+                            .addFields(
+                                {
+                                    name: process.env.PREFIX+'help',
+                                    value: 'Prints the help menu!',
+                                    inline: true,
+                                },
+                                {
+                                    name: process.env.PREFIX+'dev',
+                                    value: 'Information about Hammy!',
+                                    inline: false,
+                                },
+                                {
+                                    name: process.env.PREFIX+'info',
+                                    value: `Information about ${reaction.message.guild.name}!`,
+                                    inline: false,
+                                },
+                            );
+                            reaction.message.channel.send(embed);
+                        break;
+                    case '🛠':
+                        embed = new Discord.MessageEmbed()
+                            .setTitle("🛠 Admin Tools")
+                            .setDescription('Help Menu')
+                            .setColor('#ec8d3a')
+                            .addFields(
+                                {
+                                    name: process.env.PREFIX+'status `availability` `activity` `message`',
+                                    value: "Set Hammy's status!\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, STREAMING, LISTENING, WATCHING, COMPETING",
+                                    inline: true,
+                                },
+                                {
+                                    name: process.env.PREFIX+'clear',
+                                    value: 'Bulk delete messages in a channel.',
+                                    inline: false,
+                                },
+                                {
+                                    name: process.env.PREFIX+'poll',
+                                    value: 'Hammy reacts to the last message with `👍` and `👎`.',
+                                    inline: false,
+                                },
+                            );
+                            const last = reaction.users.cache.last();
+                            if(admins.includes(last.id))
+                            {
+                                reaction.message.channel.send(embed);
+                            }
+                            else
+                            {
+                                reaction.message.channel.send(`<@${last.id}>, you're not an administrator!`);
+                            }
+                        break;
+                }
+            }
+            else
+            {
+                switch (name) {
+                    case '🌸':
+                        var embed = new Discord.MessageEmbed()
+                            .setTitle("🌸 にほんご")
+                            .setDescription('Help Menu')
+                            .setColor('#ec8d3a')
+                            .addFields(
+                                {
+                                    name: 'Coming soon!',
+                                    value: 'Coming Soon!',
+                                    inline: true,
+                                },
+                            );
+                            reaction.message.channel.send(embed);
+                        break;
+                    case '🤡':
+                        embed = new Discord.MessageEmbed()
+                            .setTitle("🤡 For Fun")
+                            .setDescription('Help Menu')
+                            .setColor('#ec8d3a')
+                            .addFields(
+                                {
+                                    name: process.env.PREFIX+'ping',
+                                    value: 'Pong!',
+                                    inline: true,
+                                },
+                                {
+                                    name: process.env.PREFIX+'hit me for it one time',
+                                    value: 'Hit Hammy',
+                                    inline: false,
+                                },
+                            );
+                            reaction.message.channel.send(embed);
+                        break;
+                    case '🌱':
+                        embed = new Discord.MessageEmbed()
+                            .setTitle("🌱 Miscellaneous")
+                            .setDescription('Help Menu')
+                            .setColor('#ec8d3a')
+                            .addFields(
+                                {
+                                    name: process.env.PREFIX+'help',
+                                    value: 'Prints the help menu!',
+                                    inline: true,
+                                },
+                                {
+                                    name: process.env.PREFIX+'dev',
+                                    value: 'Information about Hammy!',
+                                    inline: false,
+                                },
+                                {
+                                    name: process.env.PREFIX+'info',
+                                    value: `Information about ${reaction.message.guild.name}!`,
+                                    inline: false,
+                                },
+                            );
+                            reaction.message.channel.send(embed);
+                        break;
+                }
+            }
+        }
+        return;
+    }
+
 
     //roles
     const member = reaction.message.guild.members.cache.get(user.id);
@@ -242,6 +501,7 @@ client.on('messageReactionAdd', (reaction, user) => {
                 member.roles.add('779991425235550228');
                 break;
         }
+        return;
     }
     //prof
     if(reaction.message.id === '785035924076625940') {
@@ -262,6 +522,7 @@ client.on('messageReactionAdd', (reaction, user) => {
                 member.roles.add('779989636318494741');
                 break;
         }
+        return;
     }
     //grad year
     if(reaction.message.id === '785035924496580628') {
@@ -282,6 +543,7 @@ client.on('messageReactionAdd', (reaction, user) => {
                 member.roles.add('779988607942393856');
                 break;
         }
+        return;
     }
     //pronouns
     if(reaction.message.id === '785035924970536971') {
@@ -308,6 +570,7 @@ client.on('messageReactionAdd', (reaction, user) => {
                 member.roles.add('779984906360586250');
                 break;
         }
+        return;
     }
 });
 
@@ -333,6 +596,7 @@ client.on('messageReactionRemove', (reaction, user) => {
                 member.roles.remove('779991425235550228');
                 break;
         }
+        return;
     }
     //prof
     if(reaction.message.id === '785035924076625940') {
@@ -353,6 +617,7 @@ client.on('messageReactionRemove', (reaction, user) => {
                 member.roles.remove('779989636318494741');
                 break;
         }
+        return;
     }
     //grad year
     if(reaction.message.id === '785035924496580628') {
@@ -373,6 +638,7 @@ client.on('messageReactionRemove', (reaction, user) => {
                 member.roles.remove('779988607942393856');
                 break;
         }
+        return;
     }
     //pronouns
     if(reaction.message.id === '785035924970536971') {
@@ -399,6 +665,7 @@ client.on('messageReactionRemove', (reaction, user) => {
                 member.roles.remove('779984906360586250');
                 break;
         }
+        return;
     }
 });
 
