@@ -319,7 +319,14 @@ client.on('messageReactionAdd', (reaction, user) => {
             }
         }
         var arrEmb = reaction.message.embeds;
-        var field1 = arrEmb[0].fields[0];
+        try
+        {
+            var field1 = arrEmb[0].fields[0];
+        }
+        catch
+        {
+            console.log('322');
+        }
         if(field1.name === 'Help Menu')
         {
             if(arrEmb[0].fields.length == 5)
