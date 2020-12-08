@@ -6,8 +6,12 @@ const client = new Client({
     partials: ['MESSAGE', 'REACTION']
 });
 
+const mongo = require('./mongo.js');
+
+const messageCount = require('./message-counter.js');
+
 //ready
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log(`${client.user.tag} has logged in.`);
 
     client.user.setPresence({
@@ -18,6 +22,19 @@ client.on('ready', () => {
         }
     });
     client.user.setUsername("Aasta's Hamster");
+
+    await mongo().then(mongoose => {
+        try
+        {
+            console.log('Connected to mongo!');
+        }
+        finally
+        {
+            mongoose.connection.close();
+        }
+    });
+
+    messageCount(client);
 });
 
 //message sent
@@ -135,6 +152,52 @@ client.on('message', (message) => {
                 return;
             }
             
+        }
+
+        //ban
+        if(CMD_NAME.toLowerCase() === 'ban')
+        {
+            if(message.member.hasPermission('ADMINISTRATOR') || message.member.hasPermission('BAN_MEMBERS'))
+            {
+                const target = message.mentions.users.first();
+                if(target)
+                {
+                    const targetMember = message.guild.members.cache.get(target.id);
+                    targetMember.ban();
+                    message.channel.send('They have been banned.');
+                }
+                else
+                {
+                    message.channel.send(`<@${message.member.id}>, please specify who to ban!`);
+                }
+            }
+            else
+            {
+                message.channel.send(`<@${message.member.id}>, you do not have permission to use this command!`);
+            }
+        }
+
+        //kick
+        if(CMD_NAME.toLowerCase() === 'kick')
+        {
+            if(message.member.hasPermission('ADMINISTRATOR') || message.member.hasPermission('KICK_MEMBERS'))
+            {
+                const target = message.mentions.users.first();
+                if(target)
+                {
+                    const targetMember = message.guild.members.cache.get(target.id);
+                    targetMember.kick();
+                    message.channel.send('They have been kicked.');
+                }
+                else
+                {
+                    message.channel.send(`<@${message.member.id}>, please specify who to kick!`);
+                }
+            }
+            else
+            {
+                message.channel.send(`<@${message.member.id}>, you do not have permission to use this command!`);
+            }
         }
 
         //clear
@@ -306,7 +369,6 @@ client.on('messageReactionAdd', (reaction, user) => {
         {
             return;
         }
-        console.log(reaction.message.embeds);
         const admins = ['223631161891618816'];
         const ppl = reaction.message.guild.members.cache.array();
         for(i=0;i<ppl.length;i++)
@@ -394,9 +456,19 @@ client.on('messageReactionAdd', (reaction, user) => {
                             .setColor('#ec8d3a')
                             .addFields(
                                 {
-                                    name: process.env.PREFIX+'status `availability` `activity` `message`',
-                                    value: "Set Hammy's status!\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, STREAMING, LISTENING, WATCHING, COMPETING",
+                                    name: process.env.PREFIX+'ban `tag`',
+                                    value: 'Ban a member.\n`tag` @member',
                                     inline: true,
+                                },
+                                {
+                                    name: process.env.PREFIX+'kick `tag`',
+                                    value: 'Kick a member.\n`tag` @member',
+                                    inline: false,
+                                },
+                                {
+                                    name: process.env.PREFIX+'status `availability` `activity` `message`',
+                                    value: "Set Hammy's status!\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, LISTENING, WATCHING, COMPETING",
+                                    inline: false,
                                 },
                                 {
                                     name: process.env.PREFIX+'clear',
