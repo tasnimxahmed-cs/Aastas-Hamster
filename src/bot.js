@@ -300,7 +300,7 @@ client.on('messageReactionAdd', (reaction, user) => {
     const { name } = reaction.emoji;
 
     //help
-    if(reaction.message.embeds && (!reaction.me))
+    if(reaction.message.embeds.type === 'rich' && (!reaction.me))
     {
         const admins = ['223631161891618816'];
         const ppl = reaction.message.guild.members.cache.array();
@@ -319,14 +319,7 @@ client.on('messageReactionAdd', (reaction, user) => {
             }
         }
         var arrEmb = reaction.message.embeds;
-        try
-        {
-            var field1 = arrEmb[0].fields[0];
-        }
-        catch
-        {
-            console.log('322');
-        }
+        var field1 = arrEmb[0].fields[0];
         if(field1.name === 'Help Menu')
         {
             if(arrEmb[0].fields.length == 5)
