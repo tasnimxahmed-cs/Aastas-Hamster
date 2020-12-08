@@ -300,8 +300,13 @@ client.on('messageReactionAdd', (reaction, user) => {
     const { name } = reaction.emoji;
 
     //help
-    if(reaction.message.embeds.fields[0] && (!reaction.me))
+    if(reaction.message.hasOwnProperty('embeds') && (!reaction.me))
     {
+        if(reaction.message.embeds.length == 0)
+        {
+            return;
+        }
+        console.log(reaction.message.embeds);
         const admins = ['223631161891618816'];
         const ppl = reaction.message.guild.members.cache.array();
         for(i=0;i<ppl.length;i++)
