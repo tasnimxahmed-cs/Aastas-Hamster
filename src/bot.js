@@ -67,6 +67,11 @@ client.on('message', (message) => {
             message.channel.send('*sob*');
             return;
         }
+        if(CMD_NAME.toLowerCase() === 'hit' && args.length == 2 && args[0].toLowerCase() === 'it' && args[1].toLowerCase() === 'hammy')
+        {
+            message.channel.send('oHOOO BABYYYY nohOOOOO BABY awoohoohoohOOOOOOOOOOOOOOOOOOOO!');
+            return;
+        }
 
         //help
         if(CMD_NAME.toLowerCase() === 'help' || CMD_NAME.toLowerCase() === 'pls')
@@ -293,7 +298,7 @@ client.on('message', (message) => {
         }
 
         //poll
-        if(CMD_NAME.toLowerCase() === 'poll')
+        if(CMD_NAME.toLowerCase() === 'poll1')
         {
             if(message.member.hasPermission('ADMINISTRATOR'))
             {
@@ -307,11 +312,18 @@ client.on('message', (message) => {
             return;
         }
 
+        //pollv2
+        if(CMD_NAME.toLowerCase() === 'poll2')
+        {
+            
+        }
+
+
         //roleMenu
         if(CMD_NAME.toLowerCase() === 'rolemenu')
         {
             var intro = "Hello! Please react to the following messages to give yourself your roles!";
-            var classLev = "**Class Level**\n\n📙: `JPN 101`\n\n📕: `JPN 102`\n\n📗: `JPN 201`\n\n📘: `JPN 202`";
+            var classLev = "**Class Level**\n\n📙: `JPN 101`\n\n📕: `JPN 102`\n\n📗: `JPN 201`\n\n📘: `JPN 202`\n\n📚: `No JPN`";
             var prof = "**Professor**\n\n🍇: `Barkan Sensei`\n\n🍋: `Nakamura Sensei`\n\n🌸: `Sakurai Sensei`\n\n🍐: `Takeda Sensei`\n\n🍓: `Yokohama Sensei`";
             var gradYear = "**Graduating Year**\n\n🍗: `2021`\n\n🐔: `2022`\n\n🐤: `2023`\n\n🐥: `2024`\n\n🐣: `2025`";
             var pronouns = "**Pronouns**\n\n💙: `She/Her`\n\n💚: `He/His`\n\n💛: `They/Them`\n\n🧡: `She/They`\n\n❤: `He/They`\n\n🤍: `All Pronouns`\n\n🖤: `No Pronouns`";
@@ -321,6 +333,7 @@ client.on('message', (message) => {
                 sentClassLev.react("📕");
                 sentClassLev.react("📗");
                 sentClassLev.react("📘");
+                sentClassLev.react("📚");
             });
             message.channel.send(prof).then(sentProf => {
                 sentProf.react("🍇");
@@ -365,205 +378,207 @@ client.on('messageReactionAdd', (reaction, user) => {
     //help
     if(reaction.message.hasOwnProperty('embeds') && (!reaction.me))
     {
-        if(reaction.message.embeds.length == 0)
+        if(reaction.message.embeds.length == 0 && ((reaction.message.channel.id != '785002534640418876')))
         {
             return;
         }
-        const admins = ['223631161891618816'];
-        const ppl = reaction.message.guild.members.cache.array();
-        for(i=0;i<ppl.length;i++)
+        if(reaction.message.channel.id != '785002534640418876')
         {
-            if(ppl[i].roles.cache)
+            const admins = ['223631161891618816'];
+            const ppl = reaction.message.guild.members.cache.array();
+            for(i=0;i<ppl.length;i++)
             {
-                var arrRoles = ppl[i].roles.cache.array();
-                for(j=0;j<arrRoles.length;j++)
+                if(ppl[i].roles.cache)
                 {
-                    if(arrRoles[j] == '778482064210919434')
+                    var arrRoles = ppl[i].roles.cache.array();
+                    for(j=0;j<arrRoles.length;j++)
                     {
-                        admins.push(ppl[i].id);
+                        if(arrRoles[j] == '778482064210919434')
+                        {
+                            admins.push(ppl[i].id);
+                        }
                     }
                 }
             }
-        }
-        var arrEmb = reaction.message.embeds;
-        var field1 = arrEmb[0].fields[0];
-        if(field1.name === 'Help Menu')
-        {
-            if(arrEmb[0].fields.length == 5)
+            var arrEmb = reaction.message.embeds;
+            var field1 = arrEmb[0].fields[0];
+            if(field1.name === 'Help Menu')
             {
-                switch (name) {
-                    case '🌸':
-                        var embed = new Discord.MessageEmbed()
-                            .setTitle("🌸 にほんご")
-                            .setDescription('Help Menu')
-                            .setColor('#ec8d3a')
-                            .addFields(
-                                {
-                                    name: 'Coming soon!',
-                                    value: 'Coming Soon!',
-                                    inline: true,
-                                },
-                            );
-                            reaction.message.channel.send(embed);
-                        break;
-                    case '🤡':
-                        embed = new Discord.MessageEmbed()
-                            .setTitle("🤡 For Fun")
-                            .setDescription('Help Menu')
-                            .setColor('#ec8d3a')
-                            .addFields(
-                                {
-                                    name: process.env.PREFIX+'ping',
-                                    value: 'Pong!',
-                                    inline: true,
-                                },
-                                {
-                                    name: process.env.PREFIX+'hit me for it one time',
-                                    value: 'Hit Hammy',
-                                    inline: false,
-                                },
-                            );
-                            reaction.message.channel.send(embed);
-                        break;
-                    case '🌱':
-                        embed = new Discord.MessageEmbed()
-                            .setTitle("🌱 Miscellaneous")
-                            .setDescription('Help Menu')
-                            .setColor('#ec8d3a')
-                            .addFields(
-                                {
-                                    name: process.env.PREFIX+'help',
-                                    value: 'Prints the help menu!',
-                                    inline: true,
-                                },
-                                {
-                                    name: process.env.PREFIX+'dev',
-                                    value: 'Information about Hammy!',
-                                    inline: false,
-                                },
-                                {
-                                    name: process.env.PREFIX+'info',
-                                    value: `Information about ${reaction.message.guild.name}!`,
-                                    inline: false,
-                                },
-                            );
-                            reaction.message.channel.send(embed);
-                        break;
-                    case '🛠':
-                        embed = new Discord.MessageEmbed()
-                            .setTitle("🛠 Admin Tools")
-                            .setDescription('Help Menu')
-                            .setColor('#ec8d3a')
-                            .addFields(
-                                {
-                                    name: process.env.PREFIX+'ban `tag`',
-                                    value: 'Ban a member.\n`tag` @member',
-                                    inline: true,
-                                },
-                                {
-                                    name: process.env.PREFIX+'kick `tag`',
-                                    value: 'Kick a member.\n`tag` @member',
-                                    inline: false,
-                                },
-                                {
-                                    name: process.env.PREFIX+'status `availability` `activity` `message`',
-                                    value: "Set Hammy's status!\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, LISTENING, WATCHING, COMPETING",
-                                    inline: false,
-                                },
-                                {
-                                    name: process.env.PREFIX+'clear',
-                                    value: 'Bulk delete messages in a channel.',
-                                    inline: false,
-                                },
-                                {
-                                    name: process.env.PREFIX+'poll',
-                                    value: 'Hammy reacts to the last message with `👍` and `👎`.',
-                                    inline: false,
-                                },
-                            );
-                            const last = reaction.users.cache.last();
-                            if(admins.includes(last.id))
-                            {
+                if(arrEmb[0].fields.length == 5)
+                {
+                    switch (name) {
+                        case '🌸':
+                            var embed = new Discord.MessageEmbed()
+                                .setTitle("🌸 にほんご")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: 'Coming soon!',
+                                        value: 'Coming Soon!',
+                                        inline: true,
+                                    },
+                                );
                                 reaction.message.channel.send(embed);
-                            }
-                            else
-                            {
-                                reaction.message.channel.send(`<@${last.id}>, you're not an administrator!`);
-                            }
-                        break;
+                            break;
+                        case '🤡':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("🤡 For Fun")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'ping',
+                                        value: 'Pong!',
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'hit me for it one time',
+                                        value: 'Hit Hammy',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
+                        case '🌱':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("🌱 Miscellaneous")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'help',
+                                        value: 'Prints the help menu!',
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'dev',
+                                        value: 'Information about Hammy!',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'info',
+                                        value: `Information about ${reaction.message.guild.name}!`,
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
+                        case '🛠':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("🛠 Admin Tools")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'ban `tag`',
+                                        value: 'Ban a member.\n`tag` @member',
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'kick `tag`',
+                                        value: 'Kick a member.\n`tag` @member',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'status `availability` `activity` `message`',
+                                        value: "Set Hammy's status!\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, LISTENING, WATCHING, COMPETING",
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'clear',
+                                        value: 'Bulk delete messages in a channel.',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'poll',
+                                        value: 'Hammy reacts to the last message with `👍` and `👎`.',
+                                        inline: false,
+                                    },
+                                );
+                                const last = reaction.users.cache.last();
+                                if(admins.includes(last.id))
+                                {
+                                    reaction.message.channel.send(embed);
+                                }
+                                else
+                                {
+                                    reaction.message.channel.send(`<@${last.id}>, you're not an administrator!`);
+                                }
+                            break;
+                    }
+                }
+                else
+                {
+                    switch (name) {
+                        case '🌸':
+                            var embed = new Discord.MessageEmbed()
+                                .setTitle("🌸 にほんご")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: 'Coming soon!',
+                                        value: 'Coming Soon!',
+                                        inline: true,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
+                        case '🤡':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("🤡 For Fun")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'ping',
+                                        value: 'Pong!',
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'hit me for it one time',
+                                        value: 'Hit Hammy',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
+                        case '🌱':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("🌱 Miscellaneous")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'help',
+                                        value: 'Prints the help menu!',
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'dev',
+                                        value: 'Information about Hammy!',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'info',
+                                        value: `Information about ${reaction.message.guild.name}!`,
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
+                    }
                 }
             }
-            else
-            {
-                switch (name) {
-                    case '🌸':
-                        var embed = new Discord.MessageEmbed()
-                            .setTitle("🌸 にほんご")
-                            .setDescription('Help Menu')
-                            .setColor('#ec8d3a')
-                            .addFields(
-                                {
-                                    name: 'Coming soon!',
-                                    value: 'Coming Soon!',
-                                    inline: true,
-                                },
-                            );
-                            reaction.message.channel.send(embed);
-                        break;
-                    case '🤡':
-                        embed = new Discord.MessageEmbed()
-                            .setTitle("🤡 For Fun")
-                            .setDescription('Help Menu')
-                            .setColor('#ec8d3a')
-                            .addFields(
-                                {
-                                    name: process.env.PREFIX+'ping',
-                                    value: 'Pong!',
-                                    inline: true,
-                                },
-                                {
-                                    name: process.env.PREFIX+'hit me for it one time',
-                                    value: 'Hit Hammy',
-                                    inline: false,
-                                },
-                            );
-                            reaction.message.channel.send(embed);
-                        break;
-                    case '🌱':
-                        embed = new Discord.MessageEmbed()
-                            .setTitle("🌱 Miscellaneous")
-                            .setDescription('Help Menu')
-                            .setColor('#ec8d3a')
-                            .addFields(
-                                {
-                                    name: process.env.PREFIX+'help',
-                                    value: 'Prints the help menu!',
-                                    inline: true,
-                                },
-                                {
-                                    name: process.env.PREFIX+'dev',
-                                    value: 'Information about Hammy!',
-                                    inline: false,
-                                },
-                                {
-                                    name: process.env.PREFIX+'info',
-                                    value: `Information about ${reaction.message.guild.name}!`,
-                                    inline: false,
-                                },
-                            );
-                            reaction.message.channel.send(embed);
-                        break;
-                }
-            }
-        }
-        return;
+            return;
+        }   
     }
-
 
     //roles
     const member = reaction.message.guild.members.cache.get(user.id);
     //class level
-    if(reaction.message.id === '785035923477757952') {
+    if(reaction.message.id === '786152384027820032') {
         switch (name) {
             case '📙':
                 member.roles.add('779991142049120286');
@@ -577,11 +592,14 @@ client.on('messageReactionAdd', (reaction, user) => {
             case '📘':
                 member.roles.add('779991425235550228');
                 break;
+            case '📚':
+                member.roles.add('785997424912367676');
+                break;
         }
         return;
     }
     //prof
-    if(reaction.message.id === '785035924076625940') {
+    if(reaction.message.id === '786152384543457301') {
         switch (name) {
             case '🍇':
                 member.roles.add('779989949058777108');
@@ -602,7 +620,7 @@ client.on('messageReactionAdd', (reaction, user) => {
         return;
     }
     //grad year
-    if(reaction.message.id === '785035924496580628') {
+    if(reaction.message.id === '786152385222541324') {
         switch (name) {
             case '🍗':
                 member.roles.add('779988296973287484');
@@ -623,7 +641,7 @@ client.on('messageReactionAdd', (reaction, user) => {
         return;
     }
     //pronouns
-    if(reaction.message.id === '785035924970536971') {
+    if(reaction.message.id === '786152385969389578') {
         switch (name) {
             case '💙':
                 member.roles.add('779984174852735007');
@@ -658,7 +676,7 @@ client.on('messageReactionRemove', (reaction, user) => {
     //roles
     const member = reaction.message.guild.members.cache.get(user.id);
     //class level
-    if(reaction.message.id === '785035923477757952') {
+    if(reaction.message.id === '786152384027820032') {
         switch (name) {
             case '📙':
                 member.roles.remove('779991142049120286');
@@ -672,11 +690,14 @@ client.on('messageReactionRemove', (reaction, user) => {
             case '📘':
                 member.roles.remove('779991425235550228');
                 break;
+            case '📚':
+                member.roles.remove('785997424912367676');
+                break;
         }
         return;
     }
     //prof
-    if(reaction.message.id === '785035924076625940') {
+    if(reaction.message.id === '786152384543457301') {
         switch (name) {
             case '🍇':
                 member.roles.remove('779989949058777108');
@@ -697,7 +718,7 @@ client.on('messageReactionRemove', (reaction, user) => {
         return;
     }
     //grad year
-    if(reaction.message.id === '785035924496580628') {
+    if(reaction.message.id === '786152385222541324') {
         switch (name) {
             case '🍗':
                 member.roles.remove('779988296973287484');
@@ -718,7 +739,7 @@ client.on('messageReactionRemove', (reaction, user) => {
         return;
     }
     //pronouns
-    if(reaction.message.id === '785035924970536971') {
+    if(reaction.message.id === '786152385969389578') {
         switch (name) {
             case '💙':
                 member.roles.remove('779984174852735007');
