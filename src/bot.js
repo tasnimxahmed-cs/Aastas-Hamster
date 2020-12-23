@@ -9,6 +9,23 @@ const client = new Client({
 const mongo = require('./mongo.js');
 const flashcardSchema = require('../schemas/flashcard-schema.js');
 
+const redis = require('./redis.js');
+const redisKeyPrefix = 'muted-';
+redis.expire(message => {
+    if(message.startsWith(redisKeyPrefix))
+    {
+        const split = message.split('-');
+        const memberId = split[1];
+        const guildId = split[2];
+
+        const guild = client.guilds.cache.get(guildId);
+        const member = guild.members.cache.get(memberId);
+
+        const mutedRole = guild.roles.cache.find((role) => role.name === 'muted');
+        member.roles.remove(mutedRole);
+    }
+});
+
 const messageCount = require('./message-counter.js');
 const readFlashcards = require('./read-flashcards.js');
 
@@ -32,7 +49,7 @@ client.on('ready', async () => {
     await mongo().then(mongoose => {
         try
         {
-            console.log('Connected to mongo!');
+            console.log('Connected to Mongo!');
         }
         finally
         {
@@ -209,6 +226,102 @@ client.on('message', async (message) => {
             else
             {
                 message.channel.send(`<@${message.member.id}>, you do not have permission to use this command!`);
+            }
+        }
+
+        //mute
+        if(CMD_NAME.toLowerCase() === 'mute')
+        {
+            const syntax = process.env.PREFIX+'mute `@` `duration (number)` `unit(m, h, d, or life)`';
+            if(!message.member.hasPermission('ADMINISTRATOR'))
+            {
+                message.channel.send('You are not an administrator!');
+                return;
+            }
+
+            const split = message.content.trim().split(' ');
+
+            if(split.length !== 4)
+            {
+                message.channel.send('Please use the correct command syntax: '+syntax);
+                return;
+            }
+
+            const duration = split[2];
+            const durationType = split[3];
+
+            if(isNaN(duration))
+            {
+                message.channel.send('Please provide a number for the duration! '+syntax);
+                return;
+            }
+
+            const durations =
+            {
+                m: 60,
+                h: 60 * 60,
+                d: 60 * 60 * 24,
+                life: -1
+            }
+
+            if(!durations[durationType])
+            {
+                message.channel.send('Please provide a valid duration type! ' +syntax);
+                return;
+            }
+
+            const seconds = duration * durations[durationType];
+
+            const target = message.mentions.users.first();
+
+            if(!target)
+            {
+                message.channel.send('Please tag a member to mute!');
+                return;
+            }
+
+            const role = message.guild.roles.cache.find(role => role.name === 'muted')
+            if(role)
+            {
+                message.guild.members.cache.get(target.id).roles.add(role);
+            }
+
+            const redisClient = await redis();
+            try
+            {
+                const redisKey = `${redisKeyPrefix}${target.id}-${message.guild.id}`;
+
+                if(seconds > 0)
+                {
+                    redisClient.set(redisKey, 'true', 'EX', seconds);
+                }
+                else
+                {
+                    redisClient.set(redisKey, 'true');
+                }
+            }
+            finally
+            {
+                redisClient.quit()
+            }
+        }
+
+        //unmute
+        if(CMD_NAME.toLowerCase() === 'unmute')
+        {
+            const target = message.mentions.users.first();
+
+            const mutedRole = message.guild.roles.cache.find(role => role.name === 'muted')
+
+            const redisClient = await redis();
+            try
+            {
+                redisClient.del(`${redisKeyPrefix}${target.id}-${message.guild.id}`);
+                message.guild.members.cache.get(target.id).roles.remove(mutedRole);
+            }
+            finally
+            {
+                redisClient.quit();
             }
         }
 
@@ -460,7 +573,7 @@ client.on('message', async (message) => {
 });
 
 //new member
-client.on('guildMemberAdd', (member) => {
+client.on('guildMemberAdd', async (member) => {
     
     //welcome msg
     const channel = member.guild.channels.cache.get('778473299016417330');
@@ -472,6 +585,30 @@ client.on('guildMemberAdd', (member) => {
     const hunterJapanese = client.guilds.cache.get('749100160402849805');
     const memCountChannel = hunterJapanese.channels.cache.get('786482126315978772');
     memCountChannel.setName('Member Count: '+(hunterJapanese.memberCount).toString());
+
+    //mute check
+    const redisClient = await redis();
+    try
+    {
+        redisClient.get(`${redisKeyPrefix}${member.id}-${member.guild.id}`, (err, result) => {
+            if(err)
+            {
+                console.log('Redis GET error:', err);
+            }
+            else if(result)
+            {
+                const role = member.guild.roles.cache.find(role => role.name === 'muted')
+                if(role)
+                {
+                    member.roles.add(role);
+                }
+            }
+        });
+    }
+    finally
+    {
+        redisClient.quit();
+    }
 });
 
 //remove member
@@ -599,6 +736,11 @@ client.on('messageReactionAdd', (reaction, user) => {
                                         inline: false,
                                     },
                                     {
+                                        name: process.env.PREFIX+'mute `tag` `duration` `unit`',
+                                        value: 'Mute a member.\n`tag` @member\n`duration` number\n`unit` m(inutes), h(ours), d(ays), life',
+                                        inline: false,
+                                    },
+                                    {
                                         name: process.env.PREFIX+'status `availability` `activity` `message`',
                                         value: "Set Hammy's status!\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, LISTENING, WATCHING, COMPETING",
                                         inline: false,
@@ -692,7 +834,7 @@ client.on('messageReactionAdd', (reaction, user) => {
         }
         else
         {
-            if(reaction.message.embeds != null)
+            if(reaction.message.embeds[0].footer != null)
             {
                 if(reaction.message.embeds[0].footer.text.includes('Card'))
                 {
