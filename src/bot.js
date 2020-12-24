@@ -48,6 +48,7 @@ client.on('ready', async () => {
     console.log(`${client.user.tag} has logged in.`);
 
     //command handler
+    console.log(__dirname);
     const baseFile = 'command-base.js';
     const commandBase = require(`./commands/${baseFile}`);
     const readCommands = dir => {
