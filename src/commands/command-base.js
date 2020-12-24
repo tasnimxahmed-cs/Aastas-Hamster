@@ -1,4 +1,4 @@
-const { prefix } = process.env;
+const prefix = process.env.PREFIX;
 
 const validatePermissions = (permissions) => {
     const validPermissions =

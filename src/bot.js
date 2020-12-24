@@ -48,12 +48,10 @@ client.on('ready', async () => {
     console.log(`${client.user.tag} has logged in.`);
 
     //command handler
-    console.log(__dirname);
     const baseFile = 'command-base.js';
     const commandBase = require(`./commands/${baseFile}`);
     const readCommands = dir => {
         const files = fs.readdirSync(path.join(__dirname, dir))
-        console.log(path.join(__dirname, dir));
         for (const file of files)
         {
             const stat = fs.lstatSync(path.join(__dirname, dir, file));
