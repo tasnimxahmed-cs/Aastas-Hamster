@@ -53,6 +53,7 @@ client.on('ready', async () => {
     const commandBase = require(`./commands/${baseFile}`);
     const readCommands = dir => {
         const files = fs.readdirSync(path.join(__dirname, dir))
+        console.log(path.join(__dirname, dir));
         for (const file of files)
         {
             const stat = fs.lstatSync(path.join(__dirname, dir, file));
