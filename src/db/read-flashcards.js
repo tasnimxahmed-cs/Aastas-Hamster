@@ -1,6 +1,6 @@
 const mongo = require('./mongo.js');
 const fs = require('fs');
-const flashcardSchema = require('../schemas/flashcard-schema.js');
+const flashcardSchema = require('../../schemas/flashcard-schema.js');
 
 module.exports = client => {
     client.on('message', async message => {
