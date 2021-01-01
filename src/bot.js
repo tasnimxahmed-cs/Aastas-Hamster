@@ -2,7 +2,7 @@
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
-require('events').EventEmitter.defaultMaxListeners = 30;
+require('events').EventEmitter.defaultMaxListeners = 100;
 
 //discordjs
 const { Client, DiscordAPIError } = require('discord.js');
@@ -16,8 +16,14 @@ exports.client = client;
 //mongodb
 const mongo = require('./mongo.js');
 
+const levels = require('./mongodb/levels.js');
+
+const messageCount = require('./old mdb/message-counter.js');
+const readFlashcards = require('./old mdb/read-flashcards.js');
+
 //redis
 const redis = require('./redis.js');
+const mee6Migrate = require('./commands/mee6-migrate.js');
 exports.redis = redis;
 const redisKeyPrefix = 'muted-';
 exports.redisKeyPrefix = redisKeyPrefix;
@@ -36,11 +42,9 @@ redis.expire(message => {
     }
 });
 
-//database
-const messageCount = require('./db/message-counter.js');
-const readFlashcards = require('./db/read-flashcards.js');
 
-messageCount(client);
+
+//messageCount(client);
 readFlashcards(client);
 
 //ready
@@ -67,7 +71,8 @@ client.on('ready', async () => {
         }
     }
     readCommands('commands');
-
+    levels(client);
+    
     //boot status
     client.user.setPresence({
         status: 'online',
@@ -83,17 +88,6 @@ client.on('ready', async () => {
     const memCountChannel = hunterJapanese.channels.cache.get('786482126315978772');
     memCountChannel.setName('Member Count: '+(hunterJapanese.memberCount.toString()));
 
-    //connect to mongodb
-    await mongo().then(mongoose => {
-        try
-        {
-            console.log('Connected to Mongo!');
-        }
-        finally
-        {
-            mongoose.connection.close();
-        }
-    });
 });
 
 //new member
@@ -154,8 +148,9 @@ client.on('guildBanAdd', (guild, user) => {
 });
 
 //reaction added
-client.on('messageReactionAdd', (reaction, user) => {
+client.on('messageReactionAdd', async (reaction, user) => {
     const { name } = reaction.emoji;
+    const member = reaction.message.guild.members.cache.get(user.id);
 
     //embeds
     //help + flashcards
@@ -183,7 +178,7 @@ client.on('messageReactionAdd', (reaction, user) => {
             var field1 = arrEmb[0].fields[0];
             if(field1.name === 'Help Menu')
             {
-                if(arrEmb[0].fields.length == 5)
+                if(arrEmb[0].fields.length == 6)
                 {
                     switch (name) {
                         case '🌸':
@@ -194,7 +189,7 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 .addFields(
                                     {
                                         name: process.env.PREFIX+'flashcard `chapter(s)`',
-                                        value: 'Review vocabulary as flashcards!\n`chapter(s)` chapter numbers, seperated by ",".',
+                                        value: 'Review vocabulary as flashcards\n`chapter(s)` chapter numbers, seperated by ",".',
                                         inline: true,
                                     },
                                 );
@@ -206,6 +201,11 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 .setDescription('Help Menu')
                                 .setColor('#ec8d3a')
                                 .addFields(
+                                    {
+                                        name: process.env.PREFIX+'rank',
+                                        value: 'Level information',
+                                        inline: false,
+                                    },
                                     {
                                         name: process.env.PREFIX+'ping',
                                         value: 'Pong!',
@@ -219,6 +219,25 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 );
                                 reaction.message.channel.send(embed);
                             break;
+                        case '💴':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("💴 Economy")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'balance `tag`',
+                                        value: "View balance\n`tag` @member",
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'pay `tag` `amount`',
+                                        value: 'Pay a user\n`tag` @member\n`amount` amount to pay',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
                         case '👾':
                             embed = new Discord.MessageEmbed()
                                 .setTitle("👾 Miscellaneous")
@@ -227,12 +246,12 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 .addFields(
                                     {
                                         name: process.env.PREFIX+'help',
-                                        value: 'Prints the help menu!',
+                                        value: 'Help Menu',
                                         inline: true,
                                     },
                                     {
                                         name: process.env.PREFIX+'dev',
-                                        value: 'Information about Hammy!',
+                                        value: 'Hammy info.',
                                         inline: false,
                                     },
                                 );
@@ -246,32 +265,42 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 .addFields(
                                     {
                                         name: process.env.PREFIX+'ban `tag`',
-                                        value: 'Ban a member.\n`tag` @member',
+                                        value: 'Ban a member\n`tag` @member',
                                         inline: true,
                                     },
                                     {
                                         name: process.env.PREFIX+'kick `tag`',
-                                        value: 'Kick a member.\n`tag` @member',
+                                        value: 'Kick a member\n`tag` @member',
                                         inline: false,
                                     },
                                     {
                                         name: process.env.PREFIX+'mute `tag` `duration` `unit`',
-                                        value: 'Mute a member.\n`tag` @member\n`duration` number\n`unit` m(inutes), h(ours), d(ays), life',
+                                        value: 'Mute a member\n`tag` @member\n`duration` number\n`unit` m(inutes), h(ours), d(ays), life',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'unmute `tag`',
+                                        value: 'Unmute a muted member\n`tag` @member',
                                         inline: false,
                                     },
                                     {
                                         name: process.env.PREFIX+'status `availability` `activity` `message`',
-                                        value: "Set Hammy's status!\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, LISTENING, WATCHING, COMPETING",
+                                        value: "Set Hammy's status\n`availability` online, idle, invisible, dnd\n`activity` PLAYING, LISTENING, WATCHING, COMPETING",
                                         inline: false,
                                     },
                                     {
                                         name: process.env.PREFIX+'clear',
-                                        value: 'Bulk delete messages in a channel.',
+                                        value: 'Bulk delete messages in a channel',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'addbalance `tag` `amount`',
+                                        value: "Add paasta to a user's balance\n`tag` @member\n`amount` amount to add",
                                         inline: false,
                                     },
                                     {
                                         name: process.env.PREFIX+'poll `question` `-o option`',
-                                        value: 'Host a poll.\n`question` question to poll\n`-o option`type -o before each option',
+                                        value: 'Host a poll\n`question` question to poll\n`-o option`type -o before each option',
                                         inline: false,
                                     },
                                 );
@@ -298,7 +327,7 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 .addFields(
                                     {
                                         name: process.env.PREFIX+'flashcard `chapter(s)`',
-                                        value: 'Review vocabulary as flashcards!\n`chapter(s)` chapter numbers, seperated by ",".',
+                                        value: 'Review vocabulary as flashcards\n`chapter(s)` chapter numbers, seperated by ",".',
                                         inline: true,
                                     },
                                 );
@@ -310,6 +339,11 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 .setDescription('Help Menu')
                                 .setColor('#ec8d3a')
                                 .addFields(
+                                    {
+                                        name: process.env.PREFIX+'rank',
+                                        value: 'Level information',
+                                        inline: false,
+                                    },
                                     {
                                         name: process.env.PREFIX+'ping',
                                         value: 'Pong!',
@@ -323,6 +357,25 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 );
                                 reaction.message.channel.send(embed);
                             break;
+                        case '💴':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("💴 Economy")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'balance `tag`',
+                                        value: "View balance\n`tag` @member",
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'pay `tag` `amount`',
+                                        value: 'Pay a user\n`tag` @member\n`amount` amount to pay',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
                         case '👾':
                             embed = new Discord.MessageEmbed()
                                 .setTitle("👾 Miscellaneous")
@@ -331,12 +384,12 @@ client.on('messageReactionAdd', (reaction, user) => {
                                 .addFields(
                                     {
                                         name: process.env.PREFIX+'help',
-                                        value: 'Prints the help menu!',
+                                        value: 'Help Menu',
                                         inline: true,
                                     },
                                     {
                                         name: process.env.PREFIX+'dev',
-                                        value: 'Information about Hammy!',
+                                        value: 'Hammy info.',
                                         inline: false,
                                     },
                                 );
@@ -418,10 +471,9 @@ client.on('messageReactionAdd', (reaction, user) => {
         return;
     }
 
-    //roles
-    const member = reaction.message.guild.members.cache.get(user.id);
+    //roles    
     //class level
-    if(reaction.message.id === '786152384027820032') {
+    if(reaction.message.id === '794357287866073178') {
         switch (name) {
             case '📙':
                 member.roles.add('779991142049120286');
@@ -442,7 +494,7 @@ client.on('messageReactionAdd', (reaction, user) => {
         return;
     }
     //prof
-    if(reaction.message.id === '786152384543457301') {
+    if(reaction.message.id === '794357288399536158') {
         switch (name) {
             case '🍇':
                 member.roles.add('779989949058777108');
@@ -463,7 +515,7 @@ client.on('messageReactionAdd', (reaction, user) => {
         return;
     }
     //grad year
-    if(reaction.message.id === '786152385222541324') {
+    if(reaction.message.id === '794357288987131904') {
         switch (name) {
             case '🍗':
                 member.roles.add('779988296973287484');
@@ -484,7 +536,7 @@ client.on('messageReactionAdd', (reaction, user) => {
         return;
     }
     //pronouns
-    if(reaction.message.id === '786152385969389578') {
+    if(reaction.message.id === '794357289501851678') {
         switch (name) {
             case '💙':
                 member.roles.add('779984174852735007');
@@ -519,7 +571,7 @@ client.on('messageReactionRemove', (reaction, user) => {
     //roles
     const member = reaction.message.guild.members.cache.get(user.id);
     //class level
-    if(reaction.message.id === '786152384027820032') {
+    if(reaction.message.id === '794357287866073178') {
         switch (name) {
             case '📙':
                 member.roles.remove('779991142049120286');
@@ -540,7 +592,7 @@ client.on('messageReactionRemove', (reaction, user) => {
         return;
     }
     //prof
-    if(reaction.message.id === '786152384543457301') {
+    if(reaction.message.id === '794357288399536158') {
         switch (name) {
             case '🍇':
                 member.roles.remove('779989949058777108');
@@ -561,7 +613,7 @@ client.on('messageReactionRemove', (reaction, user) => {
         return;
     }
     //grad year
-    if(reaction.message.id === '786152385222541324') {
+    if(reaction.message.id === '794357288987131904') {
         switch (name) {
             case '🍗':
                 member.roles.remove('779988296973287484');
@@ -582,7 +634,7 @@ client.on('messageReactionRemove', (reaction, user) => {
         return;
     }
     //pronouns
-    if(reaction.message.id === '786152385969389578') {
+    if(reaction.message.id === '794357289501851678') {
         switch (name) {
             case '💙':
                 member.roles.remove('779984174852735007');

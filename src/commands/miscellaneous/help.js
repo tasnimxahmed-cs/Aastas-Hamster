@@ -1,4 +1,4 @@
-const { client, Discord } = require('../bot.js');
+const { client, Discord } = require('../../bot.js');
 
 module.exports =
 {
@@ -34,9 +34,14 @@ module.exports =
                         inline: false,
                     },
                     {
+                        name: '`💴` Economy',
+                        value: "Let's get this bread! 🍞",
+                        inline: false,
+                    },
+                    {
                         name: '`👾` Miscellaneous',
                         value: 'Who knows? 🤷‍♂️',
-                        inline: true,
+                        inline: false,
                     },
                     {
                         name: '`🛠` Admin Tools',
@@ -47,6 +52,7 @@ module.exports =
             message.channel.send(embed).then((message) => {
                 message.react('🌸');
                 message.react('🤡');
+                message.react('💴');
                 message.react('👾');
                 message.react('🛠');
             });
@@ -76,6 +82,11 @@ module.exports =
                         inline: false,
                     },
                     {
+                        name: '`💴` Economy',
+                        value: "Let's get this bread! 🍞",
+                        inline: false,
+                    },
+                    {
                         name: '`👾` Miscellaneous',
                         value: 'Who knows? 🤷‍♂️',
                         inline: true,
@@ -84,6 +95,7 @@ module.exports =
             message.channel.send(embed).then((message) => {
                 message.react('🌸');
                 message.react('🤡');
+                message.react('💴');
                 message.react('👾');
             });
         }

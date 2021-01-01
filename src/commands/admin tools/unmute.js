@@ -1,4 +1,4 @@
-const { redis, redisKeyPrefix } = require('../bot.js');
+const { redis, redisKeyPrefix } = require('../../bot.js');
 
 module.exports =
 {

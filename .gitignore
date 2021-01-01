@@ -2,3 +2,4 @@ node_modules
 command.js
 .env
 flashcards
+./src./commands./mee6-migrate.js

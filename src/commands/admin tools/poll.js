@@ -45,13 +45,24 @@ module.exports =
 
         var allEmojis =
         [
-            '☕','🍵','🍶','🍼','🍺','🍻','🍸','🍹','🍷','🍴','🍕','🍔','🍟','🍗','🍖','🍝','🍛','🍤','🍱','🍣','🍥','🍙','🍘','🍚','🍜','🍲','🍢','🍡','🍳','🍞','🍩','🍮','🍦','🍨','🍧','🎂','🍰','🍪','🍫','🍬','🍭','🍯','🍎','🍏','🍊','🍋','🍒','🍇','🍉','🍓','🍑','🍈','🍌','🍐','🍍','🍠','🍆','🍅','🌽'
+            '⚪', '⚫', '🔴', '🔵', '🟠', '🟡', '🟢', '🟣', '🟤', '⬛', '⬜', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '🟫'
         ];
         var randEmojis = [];
-        
+
+        if(opt.length > 18)
+        {
+            message.channel.send('Please give less than 18 options!');
+            return;
+        }
+
         for(i=0;i<opt.length;i++)
         {
-            randEmojis.push(allEmojis[Math.floor(Math.random() * allEmojis.length)]);
+            var randEmoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+            while(randEmojis.includes(randEmoji))
+            {
+                randEmoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+            }
+            randEmojis.push(randEmoji);
         }
 
         var poll = '**' +ques + '**' + '\n\n';

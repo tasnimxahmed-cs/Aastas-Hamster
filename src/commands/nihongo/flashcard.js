@@ -1,5 +1,5 @@
-const { Discord } = require('../bot.js');
-const flashcardSchema = require('../../schemas/flashcard-schema.js');
+const { Discord } = require('../../bot.js');
+const flashcardSchema = require('../../../schemas/flashcard-schema.js');
 
 module.exports =
 {
