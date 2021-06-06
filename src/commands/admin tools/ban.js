@@ -1,12 +1,27 @@
-module.exports =
-{
-    commands: 'ban',
-    expectedArgs: '`user`',
-    permissionError: 'You do not have permission to run this command.',
-    minArgs: 1,
-    maxArgs: 1,
-    callback: (message, arguments, text) =>
+const Commando = require('discord.js-commando')
+
+module.exports = class BanCommand extends Commando.Command {
+    constructor(client) {
+        super(client, {
+            name: 'ban',
+            aliases: [],
+            group: 'admin tools',
+            memberName: 'ban',
+            description: 'ban a user\nban `tag`',
+            argsType: 'single',
+            argsCount: 1,
+            userPermissions: ['BAN_MEMBERS'],
+            ownerOnly: false,
+        });
+    };
+
+    async run(message, args)
     {
+        if(args.includes(' '))
+        {
+            message.reply('please use the appropriate arguments!');
+            return;
+        }
         const target = message.mentions.users.first();
         if(target)
         {
@@ -18,7 +33,5 @@ module.exports =
         {
             message.channel.send(`<@${message.member.id}>, please specify who to ban!`);
         }
-    },
-    permissions: 'BAN_MEMBERS',
-    requiredRoles: [],
-}
+    }
+};

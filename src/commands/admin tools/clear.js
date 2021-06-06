@@ -1,16 +1,24 @@
-module.exports =
-{
-    commands: 'clear',
-    expectedArgs: '',
-    permissionError: 'You do not have permission to run this command.',
-    minArgs: 0,
-    maxArgs: 0,
-    callback: (message, arguments, text) =>
+const Commando = require('discord.js-commando')
+
+module.exports = class ClearCommand extends Commando.Command {
+    constructor(client) {
+        super(client, {
+            name: 'clear',
+            aliases: [],
+            group: 'admin tools',
+            memberName: 'clear',
+            description: 'bulk delete messages in a channel',
+            argsType: 'single',
+            argsCount: 0,
+            userPermissions: ['MANAGE_MESSAGES'],
+            ownerOnly: false,
+        });
+    };
+
+    async run(message, args)
     {
         message.channel.messages.fetch().then((results) => {
             message.channel.bulkDelete(results);
         });
-    },
-    permissions: 'MANAGE_MESSAGES',
-    requiredRoles: [],
-}
+    }
+};

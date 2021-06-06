@@ -20,6 +20,9 @@ const profileSchema = mongoose.Schema({
       type: Number,
       default: 1,
     },
+    warnings: {
+      type: [Object],
+  }
 });
 
 module.exports = mongoose.model('profiles', profileSchema);

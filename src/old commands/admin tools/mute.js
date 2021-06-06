@@ -1,38 +1,23 @@
 require('dotenv').config();
 const { redis, redisKeyPrefix } = require('../../bot.js');
-const Commando = require('discord.js-commando')
 
-module.exports = class MuteCommand extends Commando.Command {
-    constructor(client) {
-        super(client, {
-            name: 'mute',
-            aliases: [],
-            group: 'admin tools',
-            memberName: 'mute',
-            description: 'mute a user',
-            argsType: 'multiple',
-            argsCount: 3,
-            userPermissions: ['MANAGE_ROLES'],
-            ownerOnly: false,
-        });
-    };
-
-    async run(message, args)
+module.exports =
+{
+    commands: 'mute',
+    expectedArgs: '`user` `duration` `unit`',
+    permissionError: 'You do not have permission to run this command.',
+    minArgs: 3,
+    maxArgs: 3,
+    callback: async (message, arguments, text) =>
     {
         const syntax = process.env.PREFIX+'mute `user` `duration` `unit(m, h, d, or life)`';
 
-        const duration = args[1];
-        const durationType = args[2];
+        const duration = arguments[1];
+        const durationType = arguments[2];
 
-        if(args.length != 3)
-        {
-            message.reply('please use the appropriate syntax!');
-            return;
-        }
-        
         if(isNaN(duration))
         {
-            message.reply('please use the appropriate syntax!');
+            message.channel.send('Please provide a number for the duration! '+syntax);
             return;
         }
 
@@ -46,7 +31,7 @@ module.exports = class MuteCommand extends Commando.Command {
 
         if(!durations[durationType])
         {
-            message.reply('please use the appropriate syntax!');
+            message.channel.send('Please provide a valid duration type! ' +syntax);
             return;
         }
 
@@ -56,7 +41,7 @@ module.exports = class MuteCommand extends Commando.Command {
 
         if(!target)
         {
-            message.reply('please use the appropriate syntax!');
+            message.channel.send('Please tag a member to mute!');
             return;
         }
 
@@ -79,12 +64,12 @@ module.exports = class MuteCommand extends Commando.Command {
             {
                 redisClient.set(redisKey, 'true');
             }
-
-            message.reply(`muted <@${target.id}>.`);
         }
         finally
         {
             redisClient.quit()
         }
-    }
-};
+    },
+    permissions: 'MANAGE_ROLES',
+    requiredRoles: [],
+}

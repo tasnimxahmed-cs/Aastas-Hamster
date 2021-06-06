@@ -1,31 +1,49 @@
 const economy = require('../../mongodb/economy.js');
+const Commando = require('discord.js-commando')
 
-module.exports = {
-    commands: 'pay',
-    minArgs: 2,
-    maxArgs: 2,
-    expectedArgs: '`user` `amount`',
-    callback: async (message, arguments, text) => {
+module.exports = class PayCommand extends Commando.Command {
+    constructor(client) {
+        super(client, {
+            name: 'pay',
+            aliases: [],
+            group: 'economy',
+            memberName: 'pay',
+            description: 'pay a user',
+            argsType: 'multiple',
+            argsCount: 2,
+            userPermissions: [],
+            ownerOnly: false,
+        });
+    };
+
+    async run(message, args)
+    {
+        if(args.length !== 2)
+        {
+            message.reply('please use the appropriate arguments!');
+            return;
+        }
+
         const { guild, member } = message;
 
         const target = message.mentions.users.first();
         if(!target)
         {
-            message.channel.send('Please specify a user to pay.');
+            message.reply('please use the appropriate arguments!');
             return;
         }
 
-        const coinsToGive = arguments[1];
+        const coinsToGive = args[1];
         if(isNaN(coinsToGive) || coinsToGive < 0)
         {
-            message.channel.send('Please provide a valid number of paasta to give.');
+            message.reply('please use the appropriate arguments!');
             return;
         }
 
         const coinsOwned = await economy.getCoins(guild.id, member.id);
         if(coinsOwned < coinsToGive)
         {
-            message.channel.send(`You do not have ${coinsToGive} paasta!`);
+            message.reply(`you do not have ${coinsToGive} paasta!`);
             return;
         }
 
@@ -40,6 +58,6 @@ module.exports = {
             coinsToGive
         );
 
-        message.channel.send(`You have given <@${target.id}> ${coinsToGive} paasta! They now have ${newBalance} paasta, and you have ${remainingCoins} paasta!`);
+        message.reply(`you have given <@${target.id}> ${coinsToGive} paasta! They now have ${newBalance} paasta, and you have ${remainingCoins} paasta!`);
     }
-}
+};

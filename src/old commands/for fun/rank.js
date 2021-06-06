@@ -8,12 +8,28 @@ module.exports =
     expectedArgs: '',
     permissionError: 'You do not have permission to run this command.',
     minArgs: 0,
-    maxArgs: 0,
+    maxArgs: 1,
+    requiredChannel: '🌸rankings',
     callback: async (message, arguments, text) =>
     {
         const { guild, member, channel } = message;
         const guildId = guild.id;
-        const userId = member.id;
+        if(arguments.length > 0)
+        {
+            const target = message.mentions.users.first();
+            
+            if(!target)
+            {
+                message.reply('please specify a user!');
+                return;
+            }
+
+            userId = target.id;
+        }
+        else
+        {
+            userId = member.id;
+        }
 
         const profiles = await levels.getProfiles(guildId, userId);
         const myProfile = profiles[0];
@@ -41,12 +57,14 @@ module.exports =
             }
         }
 
+        const user = guild.members.cache.get(userId);
+
         const badge = new Discord.MessageEmbed()
             .setTitle('Rank: ' + rank.toString() + '\nLevel: ' + level)
             .setDescription(xp + ' / ' + nextLevel + ' XP')
-            .setColor(member.displayHexColor)
-            .setThumbnail(member.user.avatarURL())
-            .setFooter(member.user.tag)
+            .setColor(user.displayHexColor)
+            .setThumbnail(user.user.avatarURL())
+            .setFooter(user.user.tag)
         ;
 
         channel.send(badge);

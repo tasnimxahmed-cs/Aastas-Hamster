@@ -45,6 +45,8 @@ const validatePermissions = (permissions) => {
     }
 };
 
+let recentlyRan = [];
+
 module.exports = (client, commandOptions) => {
     let {
         commands,
@@ -52,6 +54,8 @@ module.exports = (client, commandOptions) => {
         permissionError = 'You do not have permission to run this command.',
         minArgs = 0,
         maxArgs = null,
+        cooldown = -1,
+        requiredChannel = '',
         permissions = [],
         requiredRoles = [],
         callback
@@ -73,12 +77,25 @@ module.exports = (client, commandOptions) => {
     }
 
     client.on('message', message => {
-        const { member, content, guild } = message;
+        const { member, content, guild, channel } = message;
 
         for (const alias of commands)
         {
             if(content.toLowerCase().startsWith(`${prefix}${alias.toLowerCase()}`))
             {
+                if(requiredChannel.length > 0)
+                {
+                    if(requiredChannel !== channel.name)
+                    {
+                        const foundChannel = guild.channels.cache.find((channel) => {
+                            return channel.name === requiredChannel;
+                        });
+
+                        message.reply(`you can only run this command in <#${foundChannel.id}>`);
+                        return
+                    }
+                }
+                
                 for(const permission of permissions)
                 {
                     if(!member.hasPermission(permission))
@@ -99,6 +116,13 @@ module.exports = (client, commandOptions) => {
                     }
                 }
 
+                let cooldownString = `${guild.id}-${member.id}-${commands[0]}`;
+                if(cooldown > 0 && recentlyRan.includes(cooldownString))
+                {
+                    message.reply(`That command has a ${cooldown} second cooldown! Please wait!`);
+                    return;
+                }
+
                 const arguments = content.split(/[ ]+/);
 
                 arguments.shift();
@@ -107,6 +131,17 @@ module.exports = (client, commandOptions) => {
                 {
                     message.channel.send(`Incorrect syntax; Use ${prefix}${alias} ${expectedArgs}`);
                     return;
+                }
+
+                if(cooldown > 0)
+                {
+                    recentlyRan.push(cooldownString);
+
+                    setTimeout(() => {
+                        recentlyRan = recentlyRan.filter((string) => {
+                            return string !== cooldownString
+                        });
+                    }, 1000 * cooldown);
                 }
 
                 callback(message, arguments, arguments.join(' '));

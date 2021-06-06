@@ -1,6 +1,6 @@
 //nodejs
 const path = require('path');
-const fs = require('fs');
+//const fs = require('fs');
 require('dotenv').config();
 require('events').EventEmitter.defaultMaxListeners = 100;
 
@@ -8,8 +8,15 @@ require('events').EventEmitter.defaultMaxListeners = 100;
 const { Client, DiscordAPIError } = require('discord.js');
 const Discord = require('discord.js');
 exports.Discord = Discord;
-const client = new Client({
+//const client = new Client({
+    //partials: ['MESSAGE', 'REACTION']
+//});
+const Commando = require('discord.js-commando');
+const client = new Commando.CommandoClient({
+    owner: '223631161891618816',
+    commandPrefix: process.env.PREFIX,
     partials: ['MESSAGE', 'REACTION']
+
 });
 exports.client = client;
 
@@ -18,12 +25,16 @@ const mongo = require('./mongo.js');
 
 const levels = require('./mongodb/levels.js');
 
-const messageCount = require('./old mdb/message-counter.js');
-const readFlashcards = require('./old mdb/read-flashcards.js');
+const leaderboard = require('./commands/xp/leaderboard.js');
+lbPage = 0;
+
+//const messageCount = require('./old mdb/message-counter.js');
+//const readFlashcards = require('./old mdb/read-flashcards.js');
 
 //redis
 const redis = require('./redis.js');
-const mee6Migrate = require('./commands/mee6-migrate.js');
+//const mee6Migrate = require('./commands/mee6-migrate.js');
+const { env } = require('process');
 exports.redis = redis;
 const redisKeyPrefix = 'muted-';
 exports.redisKeyPrefix = redisKeyPrefix;
@@ -45,13 +56,24 @@ redis.expire(message => {
 
 
 //messageCount(client);
-readFlashcards(client);
+//readFlashcards(client);
 
 //ready
 client.on('ready', async () => {
     console.log(`${client.user.tag} has logged in.`);
 
-    //command handler
+    client.registry
+    .registerGroups([
+        ['admin tools', 'admin tools'],
+        ['xp', 'xp'],
+        ['economy', 'economy'],
+        ['nihongo', 'nihongo'],
+        ['misc', 'misc'],
+    ])
+    //.registerDefaults()
+    .registerCommandsIn(path.join(__dirname, 'commands'));
+
+    /*command handler
     const baseFile = 'command-base.js';
     const commandBase = require(`./commands/${baseFile}`);
     const readCommands = dir => {
@@ -70,15 +92,15 @@ client.on('ready', async () => {
             }
         }
     }
-    readCommands('commands');
-    levels(client);
+    //readCommands('commands');
+    //levels(client);*/
     
     //boot status
     client.user.setPresence({
         status: 'online',
         activity: {
-            type: 3,
-            name: 'CUNY First 😔'
+            type: 5,
+            name: 'spring sem 🌸'
         }
     });
     client.user.setUsername("Aasta's Hamster");
@@ -151,7 +173,6 @@ client.on('guildBanAdd', (guild, user) => {
 client.on('messageReactionAdd', async (reaction, user) => {
     const { name } = reaction.emoji;
     const member = reaction.message.guild.members.cache.get(user.id);
-
     //embeds
     //help + flashcards
     if(reaction.message.embeds.length > 0 && (!reaction.me))
@@ -175,6 +196,61 @@ client.on('messageReactionAdd', async (reaction, user) => {
         var arrEmb = reaction.message.embeds;
         if(arrEmb[0].fields.length != 0)
         {
+            //leaderboard
+            if(arrEmb[0].title != null)
+            {
+                if(arrEmb[0].title.includes('leaderboard'))
+                {
+                    if(name === '⏪')
+                    {
+                        lbPage--;
+                        await leaderboard.updateLb(reaction.message, lbPage);
+
+                        if(lbPage == -1)
+                        {
+                            maxPage = ((await leaderboard.getUsers(reaction.message)).length/25).toString();
+
+                            if((await leaderboard.getUsers(reaction.message)).length%25 != 0)
+                            {
+                                for(i=0;i<maxPage.length;i++)
+                                {
+                                    if(maxPage[i] == '.')
+                                    {
+                                        maxPage = maxPage.slice(0,i);
+                                        break;
+                                    }
+                                }
+                            }
+                            lbPage = maxPage;
+                        }
+                    }
+                    else
+                    {
+                        lbPage++;
+
+                        maxPage = ((await leaderboard.getUsers(reaction.message)).length/25).toString();
+                        if((await leaderboard.getUsers(reaction.message)).length%25 != 0)
+                        {
+                            for(i=0;i<maxPage.length;i++)
+                            {
+                                if(maxPage[i] == '.')
+                                {
+                                    maxPage = maxPage.slice(0,i);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(lbPage > maxPage)
+                        {
+                            lbPage = 0;
+                        }
+
+                        await leaderboard.updateLb(reaction.message, lbPage);
+                    }
+                }
+            }
+            
             var field1 = arrEmb[0].fields[0];
             if(field1.name === 'Help Menu')
             {
@@ -191,30 +267,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                         name: process.env.PREFIX+'flashcard `chapter(s)`',
                                         value: 'Review vocabulary as flashcards\n`chapter(s)` chapter numbers, seperated by ",".',
                                         inline: true,
-                                    },
-                                );
-                                reaction.message.channel.send(embed);
-                            break;
-                        case '🤡':
-                            embed = new Discord.MessageEmbed()
-                                .setTitle("🤡 For Fun")
-                                .setDescription('Help Menu')
-                                .setColor('#ec8d3a')
-                                .addFields(
-                                    {
-                                        name: process.env.PREFIX+'rank',
-                                        value: 'Level information',
-                                        inline: false,
-                                    },
-                                    {
-                                        name: process.env.PREFIX+'ping',
-                                        value: 'Pong!',
-                                        inline: true,
-                                    },
-                                    {
-                                        name: process.env.PREFIX+'hit me for it one time',
-                                        value: 'Hit Hammy',
-                                        inline: false,
                                     },
                                 );
                                 reaction.message.channel.send(embed);
@@ -238,6 +290,25 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                 );
                                 reaction.message.channel.send(embed);
                             break;
+                        case '🧪':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("🧪 XP")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'leaderboard',
+                                        value: "View users ranked by level",
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'rank `tag`',
+                                        value: 'View user profile\n`tag` user',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
                         case '👾':
                             embed = new Discord.MessageEmbed()
                                 .setTitle("👾 Miscellaneous")
@@ -252,6 +323,26 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                     {
                                         name: process.env.PREFIX+'dev',
                                         value: 'Hammy info.',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'ping',
+                                        value: 'Ping Hammy',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'latency',
+                                        value: 'Ping Hammy and Discordjs',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'hit',
+                                        value: 'Hit things',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'selfrolemenu',
+                                        value: 'Print self role menu',
                                         inline: false,
                                     },
                                 );
@@ -281,6 +372,16 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                     {
                                         name: process.env.PREFIX+'unmute `tag`',
                                         value: 'Unmute a muted member\n`tag` @member',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'warn `tag` `reason`',
+                                        value: 'Warn a member\n`tag` @member',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'listwarnings `tag`',
+                                        value: 'List previous warnings\n`tag` @member',
                                         inline: false,
                                     },
                                     {
@@ -333,30 +434,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                 );
                                 reaction.message.channel.send(embed);
                             break;
-                        case '🤡':
-                            embed = new Discord.MessageEmbed()
-                                .setTitle("🤡 For Fun")
-                                .setDescription('Help Menu')
-                                .setColor('#ec8d3a')
-                                .addFields(
-                                    {
-                                        name: process.env.PREFIX+'rank',
-                                        value: 'Level information',
-                                        inline: false,
-                                    },
-                                    {
-                                        name: process.env.PREFIX+'ping',
-                                        value: 'Pong!',
-                                        inline: true,
-                                    },
-                                    {
-                                        name: process.env.PREFIX+'hit me for it one time',
-                                        value: 'Hit Hammy',
-                                        inline: false,
-                                    },
-                                );
-                                reaction.message.channel.send(embed);
-                            break;
                         case '💴':
                             embed = new Discord.MessageEmbed()
                                 .setTitle("💴 Economy")
@@ -376,6 +453,25 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                 );
                                 reaction.message.channel.send(embed);
                             break;
+                        case '🧪':
+                            embed = new Discord.MessageEmbed()
+                                .setTitle("🧪 XP")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'leaderboard',
+                                        value: "View users ranked by level",
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'rank `tag`',
+                                        value: 'View user profile\n`tag` user',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
                         case '👾':
                             embed = new Discord.MessageEmbed()
                                 .setTitle("👾 Miscellaneous")
@@ -386,11 +482,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                         name: process.env.PREFIX+'help',
                                         value: 'Help Menu',
                                         inline: true,
-                                    },
-                                    {
-                                        name: process.env.PREFIX+'dev',
-                                        value: 'Hammy info.',
-                                        inline: false,
                                     },
                                 );
                                 reaction.message.channel.send(embed);
@@ -473,7 +564,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
     //roles    
     //class level
-    if(reaction.message.id === '794357287866073178') {
+    if(reaction.message.id === '832121866898505758') {
         switch (name) {
             case '📙':
                 member.roles.add('779991142049120286');
@@ -494,7 +585,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
         return;
     }
     //prof
-    if(reaction.message.id === '794357288399536158') {
+    if(reaction.message.id === '832121867552161812') {
         switch (name) {
             case '🍇':
                 member.roles.add('779989949058777108');
@@ -514,29 +605,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
         }
         return;
     }
-    //grad year
-    if(reaction.message.id === '794357288987131904') {
-        switch (name) {
-            case '🍗':
-                member.roles.add('779988296973287484');
-                break;
-            case '🐔':
-                member.roles.add('779988406166880287');
-                break;
-            case '🐤':
-                member.roles.add('779988463310733333');
-                break;
-            case '🐥':
-                member.roles.add('779988556046794753');
-                break;
-            case '🐣':
-                member.roles.add('779988607942393856');
-                break;
-        }
-        return;
-    }
     //pronouns
-    if(reaction.message.id === '794357289501851678') {
+    if(reaction.message.id === '832121867988631594') {
         switch (name) {
             case '💙':
                 member.roles.add('779984174852735007');
@@ -571,7 +641,7 @@ client.on('messageReactionRemove', (reaction, user) => {
     //roles
     const member = reaction.message.guild.members.cache.get(user.id);
     //class level
-    if(reaction.message.id === '794357287866073178') {
+    if(reaction.message.id === '832121866898505758') {
         switch (name) {
             case '📙':
                 member.roles.remove('779991142049120286');
@@ -592,7 +662,7 @@ client.on('messageReactionRemove', (reaction, user) => {
         return;
     }
     //prof
-    if(reaction.message.id === '794357288399536158') {
+    if(reaction.message.id === '832121867552161812') {
         switch (name) {
             case '🍇':
                 member.roles.remove('779989949058777108');
@@ -612,29 +682,8 @@ client.on('messageReactionRemove', (reaction, user) => {
         }
         return;
     }
-    //grad year
-    if(reaction.message.id === '794357288987131904') {
-        switch (name) {
-            case '🍗':
-                member.roles.remove('779988296973287484');
-                break;
-            case '🐔':
-                member.roles.remove('779988406166880287');
-                break;
-            case '🐤':
-                member.roles.remove('779988463310733333');
-                break;
-            case '🐥':
-                member.roles.remove('779988556046794753');
-                break;
-            case '🐣':
-                member.roles.remove('779988607942393856');
-                break;
-        }
-        return;
-    }
     //pronouns
-    if(reaction.message.id === '794357289501851678') {
+    if(reaction.message.id === '832121867988631594') {
         switch (name) {
             case '💙':
                 member.roles.remove('779984174852735007');

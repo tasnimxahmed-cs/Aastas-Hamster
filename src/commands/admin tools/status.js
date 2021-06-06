@@ -1,27 +1,37 @@
-const { client } = require('../../bot.js');
+const Commando = require('discord.js-commando')
 
-module.exports =
-{
-    commands: 'status',
-    expectedArgs: '`availability` `activity` `message`',
-    permissionError: 'You do not have permission to run this command.',
-    minArgs: 3,
-    maxArgs: null,
-    callback: (message, arguments, text) =>
+module.exports = class statusCommand extends Commando.Command {
+    constructor(client) {
+        super(client, {
+            name: 'status',
+            aliases: [],
+            group: 'admin tools',
+            memberName: 'status',
+            description: 'change hammys status',
+            argsType: 'multiple',
+            userPermissions: ['ADMINISTRATOR'],
+            ownerOnly: false,
+        });
+    };
+
+    async run(message, args)
     {
-        var stat = arguments[2];
-        for(i=3; i<arguments.length; i++)
+        if(args.length < 3)
         {
-            stat += ' '+arguments[i];
+            message.reply('please use the appropriate arguments!');
+            return;
         }
-        client.user.setPresence({
-            status: arguments[0],
+        var stat = args[2];
+        for(var i=3; i<args.length; i++)
+        {
+            stat += ' '+args[i];
+        }
+        message.client.user.setPresence({
+            status: args[0],
             activity: {
-                type: arguments[1],
+                type: args[1],
                 name: stat
             }
         });
-    },
-    permissions: 'ADMINISTRATOR',
-    requiredRoles: [],
-}
+    }
+};

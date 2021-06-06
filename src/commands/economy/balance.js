@@ -1,18 +1,40 @@
 const economy = require('../../mongodb/economy.js');
+const Commando = require('discord.js-commando')
 
-module.exports = {
-    commands: ['balance', 'bal'],
-    maxArgs: 1,
-    expectedArgs: "`user`",
-    callback: async (message) => {
+module.exports = class BalanceCommand extends Commando.Command {
+    constructor(client) {
+        super(client, {
+            name: 'balance',
+            aliases: ['bal'],
+            group: 'economy',
+            memberName: 'balance',
+            description: 'check balance',
+            argsType: 'single',
+            argsCount: 1,
+            userPermissions: [],
+            ownerOnly: false,
+        });
+    };
+
+    async run(message, args)
+    {
+        if(args.includes(' '))
+        {
+            message.reply('please use the appropriate arguments!');
+            return;
+        }
+
         const target = message.mentions.users.first() || message.author;
         const targetId = target.id;
 
+        const targetMember = message.guild.members.cache.get(targetId);
+        const targetName = targetMember.nickname;
+
         const guildId = message.guild.id;
-        const userId = target.id;
+        const userId = targetId;
 
         const coins = await economy.getCoins(guildId, userId);
         
-        message.channel.send(`That user has ${coins} paasta!`);
+        message.reply(`${targetName} has ${coins} paasta!`);
     }
 };

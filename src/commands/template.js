@@ -1,14 +1,22 @@
-module.exports =
-{
-    commands: [],
-    expectedArgs: '',
-    permissionError: 'You do not have permission to run this command.',
-    minArgs: 0,
-    maxArgs: null,
-    callback: (message, arguments, text) =>
-    {
+const Commando = require('discord.js-commando')
 
-    },
-    permissions: [],
-    requiredRoles: [],
-}
+module.exports = class XCommand extends Commando.Command {
+    constructor(client) {
+        super(client, {
+            name: '',
+            aliases: [],
+            group: '',
+            memberName: '',
+            description: '',
+            argsType: 'single',
+            argsCount: 1,
+            userPermissions: [],
+            ownerOnly: false,
+        });
+    };
+
+    async run(message, args)
+    {
+        
+    }
+};

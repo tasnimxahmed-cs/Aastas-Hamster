@@ -1,36 +1,20 @@
-const Commando = require('discord.js-commando')
-
-module.exports = class PollCommand extends Commando.Command {
-    constructor(client) {
-        super(client, {
-            name: 'poll',
-            aliases: [],
-            group: 'admin tools',
-            memberName: 'poll',
-            description: 'cast a poll',
-            argsType: 'multiple',
-            userPermissions: ['ADMINISTRATOR'],
-            ownerOnly: false,
-        });
-    };
-
-    async run(message, args)
+module.exports =
+{
+    commands: 'poll',
+    expectedArgs: '',
+    permissionError: 'You do not have permission to run this command.',
+    minArgs: 1,
+    maxArgs: null,
+    callback: (message, arguments, text) =>
     {
         var ques = '';
         var comp = false;
         var opt = [];
         var optStr = '';
-        console.log(args);
 
-        if(args.length < 2 || !args.includes('-o'))
+        for(i=0;i<arguments.length;i++)
         {
-            message.reply('please use the appropriate arguments!');
-            return;
-        }
-        
-        for(var i=0;i<args.length;i++)
-        {
-            if(args[i] === '-o')
+            if(arguments[i] === '-o')
             {
                 if(comp)
                 {
@@ -49,12 +33,12 @@ module.exports = class PollCommand extends Commando.Command {
             {
                 if(comp)
                 {
-                    optStr += ' '+args[i];
-                    if(i == args.length-1) opt.push(optStr);
+                    optStr += ' '+arguments[i];
+                    if(i == arguments.length-1) opt.push(optStr);
                 }
                 else
                 {
-                    ques += ' '+args[i];
+                    ques += ' '+arguments[i];
                 }
             }
         }
@@ -96,5 +80,7 @@ module.exports = class PollCommand extends Commando.Command {
                 message.react(randEmojis[i]);
             }
         });
-    }
-};
+    },
+    permissions: 'ADMINISTRATOR',
+    requiredRoles: [],
+}
