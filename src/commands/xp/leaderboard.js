@@ -61,6 +61,8 @@ module.exports = class LeaderboardCommand extends Commando.Command {
 
             for(var i=lbMin;i<lbMax;i++)
             {
+                if(!users[i]) continue;
+                console.log(users[i].displayName)
                 if(allProfiles[i].level == undefined)
                 {
                     var tempLevel = 0;
@@ -153,6 +155,7 @@ module.exports.updateLb = async (message, lbPage) => {
 
     for(i=lbMin;i<lbMax;i++)
     {
+        if(!users[i]) continue;
         if(allProfiles[i].level == undefined || null)
         {
             tempLevel = 0;

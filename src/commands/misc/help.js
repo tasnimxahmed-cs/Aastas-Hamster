@@ -43,6 +43,11 @@ module.exports = class XCommand extends Commando.Command {
                         inline: false,
                     },
                     {
+                        name: '`🎶` Music',
+                        value: "Ham's Jams! 🎧",
+                        inline: false,
+                    },
+                    {
                         name: '`💴` Economy',
                         value: "Let's get this bread! 🍞",
                         inline: false,
@@ -61,6 +66,7 @@ module.exports = class XCommand extends Commando.Command {
             message.channel.send(embed).then((message) => {
                 message.react('🛠');
                 message.react('🌸');
+                message.react('🎶');
                 message.react('💴');
                 message.react('🧪');
                 message.react('👾');
@@ -86,6 +92,11 @@ module.exports = class XCommand extends Commando.Command {
                         inline: false,
                     },
                     {
+                        name: '`🎶` Music',
+                        value: "Ham's Jams! 🎧",
+                        inline: false,
+                    },
+                    {
                         name: '`💴` Economy',
                         value: "Let's get this bread! 🍞",
                         inline: false,
@@ -103,6 +114,7 @@ module.exports = class XCommand extends Commando.Command {
                 );
             message.channel.send(embed).then((message) => {
                 message.react('🌸');
+                message.react('🎶');
                 message.react('💴');
                 message.react('🧪');
                 message.react('👾');

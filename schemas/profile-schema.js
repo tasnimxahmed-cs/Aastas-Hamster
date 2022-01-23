@@ -22,7 +22,18 @@ const profileSchema = mongoose.Schema({
     },
     warnings: {
       type: [Object],
-  }
+    },
+    vcStart: {
+      type: Number,
+      default: 0
+    },
+    vcEnd: {
+      type: Number,
+      default: 0
+    },
+    vc: {
+      type: String
+    }
 });
 
 module.exports = mongoose.model('profiles', profileSchema);

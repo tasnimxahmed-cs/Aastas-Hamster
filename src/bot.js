@@ -25,6 +25,8 @@ const mongo = require('./mongo.js');
 
 const levels = require('./mongodb/levels.js');
 
+const voice = require('./mongodb/voice.js')
+
 const leaderboard = require('./commands/xp/leaderboard.js');
 lbPage = 0;
 
@@ -68,6 +70,7 @@ client.on('ready', async () => {
         ['xp', 'xp'],
         ['economy', 'economy'],
         ['nihongo', 'nihongo'],
+        ['audio', 'audio'],
         ['misc', 'misc'],
     ])
     //.registerDefaults()
@@ -99,8 +102,8 @@ client.on('ready', async () => {
     client.user.setPresence({
         status: 'online',
         activity: {
-            type: 5,
-            name: 'spring sem 🌸'
+            type: 3,
+            name: 'spring vibes 🌸'
         }
     });
     client.user.setUsername("Aasta's Hamster");
@@ -111,6 +114,11 @@ client.on('ready', async () => {
     memCountChannel.setName('Member Count: '+(hunterJapanese.memberCount.toString()));
 
 });
+
+module.exports.queue = new Map();
+
+const q = require('./commands/audio/queue.js');
+qPage = 0;
 
 //new member
 client.on('guildMemberAdd', async (member) => {
@@ -167,6 +175,25 @@ client.on('guildBanAdd', (guild, user) => {
     const hunterJapanese = client.guilds.cache.get('749100160402849805');
     const memCountChannel = hunterJapanese.channels.cache.get('786482126315978772');
     memCountChannel.setName('Member Count: '+(hunterJapanese.memberCount).toString());
+});
+
+//voice channel
+client.on('voiceStateUpdate', async (oldS, newS) => {
+    vcList = ['778468325508251700','778468467774324747']
+    if(newS.channelID == null)
+    {
+        await voice.end(newS.guild.id, newS.member.id)
+        await voice.vc(newS.guild.id, newS.member.id)
+    }
+    else if(vcList.includes(newS.channelID.toString()))
+    {
+        if(oldS.channelID != null && vcList.includes(oldS.channelID.toString()))
+        {
+            return
+        }
+
+        await voice.start(newS.guild.id, newS.member.id)
+    }
 });
 
 //reaction added
@@ -249,6 +276,57 @@ client.on('messageReactionAdd', async (reaction, user) => {
                         await leaderboard.updateLb(reaction.message, lbPage);
                     }
                 }
+                else if(arrEmb[0].title.toLowerCase().includes('jams'))
+                {
+                    if(name === '⏪')
+                    {
+                        qPage--;
+                        q.updateQ(reaction.message);
+
+                        const sQ = await q.getQ(reaction.message);
+                        if(qPage == -1)
+                        {
+                            maxQPage = (sQ.songs.length/25).toString();
+                            if(sQ.songs.length%25 != 0)
+                            {
+                                for(i=0;i<maxQPage.length;i++)
+                                {
+                                    if(maxQPage[i] == '.')
+                                    {
+                                        maxQPage = maxQPage.slice(0,i);
+                                        break;
+                                    }
+                                }
+                            }
+                            qPage = maxQPage;
+                        }
+                    }
+                    else
+                    {
+                        qPage++;
+
+                        const sQ = await q.getQ(reaction.message);
+                        maxQPage = (sQ.songs.length/25).toString();
+                        if(sQ.songs.length%25 != 0)
+                        {
+                            for(var i=0;i<maxQPage.length;i++)
+                            {
+                                if(maxQPage[i] == '.')
+                                {
+                                    maxQPage = maxQPage.slice(0,i);
+                                    break;
+                                }
+                            }
+                        }
+
+                        if(qPage > maxQPage)
+                        {
+                            qPage = 0;
+                        }
+
+                        q.updateQ(reaction.message);
+                    }
+                }
             }
             
             var field1 = arrEmb[0].fields[0];
@@ -264,9 +342,48 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                 .setColor('#ec8d3a')
                                 .addFields(
                                     {
-                                        name: process.env.PREFIX+'flashcard `chapter(s)`',
-                                        value: 'Review vocabulary as flashcards\n`chapter(s)` chapter numbers, seperated by ",".',
+                                        name: process.env.PREFIX+'jpn `word`',
+                                        value: 'English-Japanese and Japanese-English dictionary.\n`word` search term (english, romaji, kana, kanji)',
                                         inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'kanji `word`',
+                                        value: 'Kanji dictionary.\n`word` kanji',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'example `word`',
+                                        value: 'Kanji, kana, and english examples of `word `.\n`word` search term (english, kana, kanji)',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
+                        case '🎶':
+                            var embed = new Discord.MessageEmbed()
+                                .setTitle("🎶 Music")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'play `song title/url`',
+                                        value: 'Play `song` in your voice channel.',
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'skip `number`',
+                                        value: 'Skip to `number` song in queue.',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'stop',
+                                        value: 'Stop playing music in your voice channel.',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'queue',
+                                        value: 'View the song queue.',
+                                        inline: false,
                                     },
                                 );
                                 reaction.message.channel.send(embed);
@@ -319,6 +436,11 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                         name: process.env.PREFIX+'help',
                                         value: 'Help Menu',
                                         inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'st `reset`',
+                                        value: 'View study timer\n`reset` resets timer to 0',
+                                        inline: false,
                                     },
                                     {
                                         name: process.env.PREFIX+'dev',
@@ -427,9 +549,48 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                 .setColor('#ec8d3a')
                                 .addFields(
                                     {
-                                        name: process.env.PREFIX+'flashcard `chapter(s)`',
-                                        value: 'Review vocabulary as flashcards\n`chapter(s)` chapter numbers, seperated by ",".',
+                                        name: process.env.PREFIX+'jpn `word`',
+                                        value: 'English-Japanese and Japanese-English dictionary.\n`word` search term (english, romaji, kana, kanji)',
                                         inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'kanji `word`',
+                                        value: 'Kanji dictionary.\n`word` kanji',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'example `word`',
+                                        value: 'Kanji, kana, and english examples of `word `.\n`word` search term (english, kana, kanji)',
+                                        inline: false,
+                                    },
+                                );
+                                reaction.message.channel.send(embed);
+                            break;
+                        case '🎶':
+                            var embed = new Discord.MessageEmbed()
+                                .setTitle("🎶 Music")
+                                .setDescription('Help Menu')
+                                .setColor('#ec8d3a')
+                                .addFields(
+                                    {
+                                        name: process.env.PREFIX+'play `song title/url`',
+                                        value: 'Play `song` in your voice channel.',
+                                        inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'skip `number`',
+                                        value: 'Skip to `number` song in queue.',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'stop',
+                                        value: 'Stop playing music in your voice channel.',
+                                        inline: false,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'queue',
+                                        value: 'View the song queue.',
+                                        inline: false,
                                     },
                                 );
                                 reaction.message.channel.send(embed);
@@ -482,6 +643,11 @@ client.on('messageReactionAdd', async (reaction, user) => {
                                         name: process.env.PREFIX+'help',
                                         value: 'Help Menu',
                                         inline: true,
+                                    },
+                                    {
+                                        name: process.env.PREFIX+'st `reset`',
+                                        value: 'View study timer\n`reset` reset timer to 0',
+                                        inline: false,
                                     },
                                 );
                                 reaction.message.channel.send(embed);

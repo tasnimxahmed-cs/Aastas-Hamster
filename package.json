@@ -3,22 +3,37 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./src/bot.js",
+    "start": "node -r ./src/bot.js",
     "dev": "nodemon ./src/bot.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "cheerio": "^1.0.0-rc.5",
+    "@discordjs/node-pre-gyp": "^0.4.1",
+    "@discordjs/opus": "github:discordjs/opus",
+    "cheerio": "^1.0.0-rc.10",
     "discord.js": "^12.5.1",
     "discord.js-commando": "^0.12.3",
     "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "ffmpeg-static": "^4.4.0",
+    "http": "0.0.1-security",
+    "japaneasy": "^0.2.2",
     "mee6-levels-api": "^1.1.0",
     "mongoose": "^5.11.8",
-    "redis": "^3.0.2",
-    "request": "^2.88.2"
+    "node-addon-api": "^4.2.0",
+    "node-fetch": "^3.0.0",
+    "opusscript": "0.0.8",
+    "redis": "^3.1.2",
+    "request": "^2.88.2",
+    "spotify-to-yt": "^1.0.5",
+    "spotify-url-info": "^2.2.3",
+    "unofficial-jisho-api": "^2.2.2",
+    "yt-search": "^2.10.2",
+    "ytdl-core": "^4.10.0"
   }
 }
