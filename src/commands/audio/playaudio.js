@@ -39,7 +39,6 @@ module.exports = class PlayAudioCommand extends Commando.Command {
         const serverQ = queue.get(message.guild.id);
         let song = {};
         let songURL = args;
-        console.log(args)
 
         if(ytdl.validateURL(args[0]))
         {
