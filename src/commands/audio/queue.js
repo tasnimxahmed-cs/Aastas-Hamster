@@ -23,7 +23,7 @@ module.exports = class QueueCommand extends Commando.Command {
             .setTitle("Ham's Jams 🐹🎶")
             .setThumbnail(client.user.avatarURL())
             .setColor('#ec8d3a')
-            .setURL('https://github.com/tasnimxahmed-cs/Aastas-Hamster')
+            .setURL('https://github.com/tasnimxahmed-cs/pipsqueak')
             .setFooter('© メアリーさん');
         for(var i=0;i<serverQ.songs.length;i++)
         {
@@ -56,7 +56,7 @@ module.exports.updateQ = async (message) => {
             .setTitle("Ham's Jams 🐹🎶")
             .setThumbnail(client.user.avatarURL())
             .setColor('#ec8d3a')
-            .setURL('https://github.com/tasnimxahmed-cs/Aastas-Hamster')
+            .setURL('https://github.com/tasnimxahmed-cs/pipsqueak')
             .setFooter('© メアリーさん');
 
     qMin = 25*qPage;

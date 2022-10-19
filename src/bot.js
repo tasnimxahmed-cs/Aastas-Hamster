@@ -106,7 +106,7 @@ client.on('ready', async () => {
             name: 'sensei! 🤓'
         }
     });
-    client.user.setUsername("Aasta's Hamster");
+    client.user.setUsername("pipsqueak");
 
     //boot stats
     const hunterJapanese = client.guilds.cache.get('749100160402849805');

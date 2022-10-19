@@ -22,7 +22,7 @@ module.exports = class DeveloperCommand extends Commando.Command {
             .setTitle("Aasta's Hamster 🐹")
             .setThumbnail(client.user.avatarURL())
             .setColor('#ec8d3a')
-            .setURL('https://github.com/tasnimxahmed-cs/Aastas-Hamster')
+            .setURL('https://github.com/tasnimxahmed-cs/pipsqueak')
             .setFooter('© メアリーさん')
             .addFields(
                 {
@@ -37,7 +37,7 @@ module.exports = class DeveloperCommand extends Commando.Command {
                 },
                 {
                     name: 'Github Repository',
-                    value: 'https://github.com/tasnimxahmed-cs/Aastas-Hamster',
+                    value: 'https://github.com/tasnimxahmed-cs/pipsqueak',
                     inline: false,
                 },
             );
