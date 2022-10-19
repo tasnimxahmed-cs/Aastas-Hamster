@@ -102,8 +102,8 @@ client.on('ready', async () => {
     client.user.setPresence({
         status: 'online',
         activity: {
-            type: 3,
-            name: 'spring vibes 🌸'
+            type: 2,
+            name: 'sensei! 🤓'
         }
     });
     client.user.setUsername("Aasta's Hamster");
@@ -332,7 +332,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
             var field1 = arrEmb[0].fields[0];
             if(field1.name === 'Help Menu')
             {
-                if(arrEmb[0].fields.length == 6)
+                if(arrEmb[0].fields.length == 7)
                 {
                     switch (name) {
                         case '🌸':
