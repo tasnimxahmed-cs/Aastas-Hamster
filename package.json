@@ -29,6 +29,7 @@
     "mongoose": "^5.11.8",
     "node-addon-api": "^4.2.0",
     "node-fetch": "^3.0.0",
+    "nodemon": "^2.0.20",
     "opusscript": "0.0.8",
     "redis": "^3.1.2",
     "request": "^2.88.2",
