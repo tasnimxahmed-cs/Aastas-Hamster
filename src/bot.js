@@ -34,7 +34,7 @@ lbPage = 0;
 //const readFlashcards = require('./old mdb/read-flashcards.js');
 
 //redis
-const redis = require('./redis.js');
+/*const redis = require('./redis.js');
 //const mee6Migrate = require('./commands/mee6-migrate.js');
 const { env } = require('process');
 exports.redis = redis;
@@ -53,7 +53,7 @@ redis.expire(message => {
         const mutedRole = guild.roles.cache.find((role) => role.name === 'muted');
         member.roles.remove(mutedRole);
     }
-});
+});*/
 
 
 
